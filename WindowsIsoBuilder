@@ -1,0 +1,12 @@
+#!/bin/bash
+inputdir=WindowsAutoInstall
+biosboot="boot/etfsboot.com"
+label="LS4WWindows"
+outputiso="LS4WWindows.iso"
+efiboot="efi/microsoft/boot/efisys.bin"
+efi="efi/boot/bootx64.efi"
+
+7z x $1 -oWindowsAutoInstall
+cp $2 WindowsAutoInstall/autounattend.xml
+xorriso -as mkisofs -iso-level 4 -l -R -D -volid $label -b $biosboot -no-emul-boot -boot-load-size 8 -hide boot.catalog -eltorito-alt-boot -eltorito-platform efi -no-emul-boot -b $efiboot -eltorito-alt-boot -e $efi -no-emul-boot -isohybrid-gpt-basdat -o $outputiso $inputdir
+
