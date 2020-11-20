@@ -3,7 +3,7 @@ inputdir="LS4WTemp"
 biosboot="boot/etfsboot.com"
 label="LS4WWindows"
 outputiso=$3
-efiboot="efi/microsoft/boot/efisys.bin"
+efiboot="efi/microsoft/boot/efisys_noprompt.bin"
 efi="efi/boot/bootx64.efi"
 
 type xorriso >/dev/null 2>&1 || { echo >&2 "Please install xorriso to continue. Aborting"; exit 1; }
