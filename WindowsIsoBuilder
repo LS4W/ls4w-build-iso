@@ -1,12 +1,15 @@
 #!/bin/bash
-inputdir=WindowsAutoInstall
+inputdir="LS4WTemp"
 biosboot="boot/etfsboot.com"
 label="LS4WWindows"
 outputiso=$3
 efiboot="efi/microsoft/boot/efisys.bin"
 efi="efi/boot/bootx64.efi"
 
-7z x $1 -oWindowsAutoInstall
-cp $2 WindowsAutoInstall/autounattend.xml
+type xorriso >/dev/null 2>&1 || { echo >&2 "Please install xorriso to continue. Aborting"; exit 1; }
+type 7z >/dev/null 2>&1 || { echo >&2 "Please install 7zip to continue. Aborting"; exit 1; }
+
+7z x $1 -o$inputdir
+cp $2 $inputdir/autounattend.xml
 xorriso -as mkisofs -iso-level 4 -l -R -D -volid $label -b $biosboot -no-emul-boot -boot-load-size 8 -hide boot.catalog -eltorito-alt-boot -eltorito-platform efi -no-emul-boot -b $efiboot -eltorito-alt-boot -e $efi -no-emul-boot -isohybrid-gpt-basdat -o $outputiso $inputdir
 
