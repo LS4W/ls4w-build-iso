@@ -2,7 +2,7 @@
 inputdir=WindowsAutoInstall
 biosboot="boot/etfsboot.com"
 label="LS4WWindows"
-outputiso="LS4WWindows.iso"
+outputiso=$3
 efiboot="efi/microsoft/boot/efisys.bin"
 efi="efi/boot/bootx64.efi"
 
