@@ -1,4 +1,10 @@
 #!/bin/bash
+echo LS4W Windows ISO Builder
+echo windows ISO patch tool for autounattend files.
+echo
+echo -LS4W Team
+echo
+
 inputdir="LS4WTemp"
 biosboot="boot/etfsboot.com"
 label="LS4WWindows"
@@ -6,10 +12,81 @@ outputiso=$3
 efiboot="efi/microsoft/boot/efisys_noprompt.bin"
 efi="efi/boot/bootx64.efi"
 
-type xorriso >/dev/null 2>&1 || { echo >&2 "Please install xorriso to continue. Aborting"; exit 1; }
-type 7z >/dev/null 2>&1 || { echo >&2 "Please install 7zip to continue. Aborting"; exit 1; }
+# Colors
+red=$'\e[1;31m'
+grn=$'\e[1;32m'
+yel=$'\e[1;33m'
+blu=$'\e[1;34m'
+mag=$'\e[1;35m'
+cyn=$'\e[1;36m'
+end=$'\e[0m'
 
-7z x $1 -o$inputdir
+# Check for prereq's function
+check_prereq() {
+
+	printf "Checking for $1...."
+
+	if ! command -v $1 &> /dev/null ; then
+		printf "${red}Not found!${end}\n"
+		exit 2;
+	else
+		printf "${grn}Found!${end}\n"
+	fi
+}
+
+check_prereq xorriso
+check_prereq 7z
+
+# Check files exist
+
+if [ ! -f "$1" ] ; then
+	echo  "No iso"
+	exit 2;
+fi
+
+if [ ! -f "$1" ] ; then
+	echo "No autounattend.xml"
+	exit 2;
+fi
+
+
+# Extract input ISO
+echo Extracting supplied iso with 7z...
+
+7z x $1 -o$inputdir &> /dev/null
+
+
+# Verify this is an install.wim copy of Windows
+printf "Verifying this is an install.wim copy of windows ....."
+
+if [ ! -f "$inputdir/sources/install.wim" ] ; then
+	printf "\n${red}Failed.${end} Please supply an iso of windows 10 with an install.wim\n"
+	exit 2;
+else
+	printf "${grn}Found!${end}\n"
+fi
+
+
+# Copy autounattend and rebuild ISO
+echo Patching iso with autounattend.xml
+
 cp $2 $inputdir/autounattend.xml
-xorriso -as mkisofs -iso-level 4 -l -R -D -volid $label -b $biosboot -no-emul-boot -boot-load-size 8 -hide boot.catalog -eltorito-alt-boot -eltorito-platform efi -no-emul-boot -b $efiboot -eltorito-alt-boot -e $efi -no-emul-boot -isohybrid-gpt-basdat -o $outputiso $inputdir
 
+
+#Build new iso 
+echo Building new iso with xorriso
+
+xorriso -as mkisofs -iso-level 4 -l -R -D -volid $label -b $biosboot -no-emul-boot -boot-load-size 8 -hide boot.catalog -eltorito-alt-boot -eltorito-platform efi -no-emul-boot -b $efiboot -eltorito-alt-boot -e $efi -no-emul-boot -isohybrid-gpt-basdat -o $outputiso $inputdir &> /dev/null
+
+if [ ! -f $outputiso ] ; then
+	printf "${red}Failed to create iso.${end}\n"
+	exit 2;
+else
+	printf "${grn}ISO generated!${end}\n"	
+fi
+
+# Clean up
+echo Cleaning up temporary files.
+rm -rf $inputdir
+
+echo "${grn}Done!${end} File generated successfully"
